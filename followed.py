@@ -3,14 +3,21 @@ import json
 
 CLIENT_ID = "0gdtvatdi4u362gn7x4vpvrw3y79ka"
 
-userId = "44322889"
-url = "https://api.twitch.tv/kraken/users/{}/follows/channels".format(userId)
-headers = {
-    "Accept": "application/vnd.twitchtv.v5+json",
-    "Client-ID": CLIENT_ID
-}
+def getFollows(userId):
+	url = "https://api.twitch.tv/kraken/users/{}/follows/channels".format(userId)
+	headers = {
+		"Accept": "application/vnd.twitchtv.v5+json",
+		"Client-ID": CLIENT_ID
+	}
 
-r = requests.get(url, headers=headers)
+	total = json.loads(requests.get(url, headers=headers).text)["_total"]
 
-out = json.dumps(json.loads(r.text), indent=4)
-print(out)
+	queryParams = {
+		"limit": total,
+		"offset": 0
+	}
+	return json.loads(requests.get(url, headers=headers, data=queryParams).text)["follows"]
+
+follows = getFollows("44322889")
+
+print([x["channel"]["display_name"] for x in follows])
